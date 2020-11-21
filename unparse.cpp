@@ -8,8 +8,8 @@ static void doIndent(std::ostream& out, int indent){
 }
 
 void ProgramNode::unparse(std::ostream& out, int indent){
-	for (DeclNode * decl : *myGlobals){
-		decl->unparse(out, indent);
+	for (StmtNode * stmt : *myGlobals){
+		stmt->unparse(out, indent);
 	}
 }
 

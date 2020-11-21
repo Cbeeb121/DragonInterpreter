@@ -126,7 +126,8 @@
 %token	<transToken>     WHILE
 
 %type <transProgram>    program
-%type <transDeclList>   globals
+// %type <transDeclList>   globals
+%type <transStmts>      globals
 %type <transDecl>       decl
 %type <transVarDecl>    varDecl
 %type <transType>       type
@@ -165,15 +166,21 @@ program 	: globals
 		  *root = $$;
 		  }
 
-globals 	: globals decl 
-	  	  { 
-	  	  $$ = $1; 
-	  	  DeclNode * declNode = $2;
-		  $$->push_back(declNode);
-	  	  }
+globals 	: globals stmt
+      {
+        $$ = $1;
+        StmtNode * stmtNode = $2; 
+        $$->push_back(stmtNode);
+      }
+    // | globals exp 
+    //   {
+    //     $$ = $1;
+    //     ExpNode * expNode = $2; 
+    //     $$->push_back(expNode);
+    //   }
 		| /* epsilon */
 		  {
-		  $$ = new std::list<DeclNode * >();
+		  $$ = new std::list<StmtNode * >();
 		  }
 
 decl 		: varDecl SEMICOLON
@@ -266,7 +273,7 @@ stmtList 	: /* epsilon */
 		  $$->push_back($2);
 	  	  }
 
-stmt		: varDecl SEMICOLON
+stmt		: decl
 		  {
 		  $$ = $1;
 		  }

@@ -44,14 +44,18 @@ public:
 	} 
 private:
 	std::string myName;
-	DataType * myType;
+  DataType * myType;
+  std::string myValString; // CLB: 11/21/20
+  int myValInt; // CLB: 11/21/20
+  char myValChar; // CLB: 11/21/20
+  bool myValBool; // CLB: 11/21/20
 };
 
 class VarSymbol : public SemSymbol {
 public:
 	VarSymbol(std::string name, DataType * type) 
 	: SemSymbol(name, type) { }
-	virtual SymbolKind getKind() const override { return VAR; } 
+	virtual SymbolKind getKind() const override { return VAR; }
 };
 
 class FnSymbol : public SemSymbol{

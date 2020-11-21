@@ -8,14 +8,14 @@ FLAGS=-pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdis
 
 .PHONY: all clean test cleantest
 
-all: holeycc
+all: dragoninterp
 
 clean:
-	rm -rf *.output *.o *.cc *.hh $(DEPS) holeycc parser.dot parser.png
+	rm -rf *.output *.o *.cc *.hh $(DEPS) dragoninterp parser.dot parser.png
 
 -include $(DEPS)
 
-holeycc: $(OBJ_SRCS)
+dragoninterp: $(OBJ_SRCS)
 	$(CXX) $(FLAGS) -g -std=c++14 -o $@ $(OBJ_SRCS)
 
 %.o: %.cpp 

@@ -58,16 +58,23 @@ private:
 
 class ProgramNode : public ASTNode{
 public:
-	ProgramNode(std::list<DeclNode *> * globalsIn)
+	ProgramNode(std::list<StmtNode *> * globalsIn) // if we accept StmtNode's we can broaden the capabilities of our global scope.
 	: ASTNode(1,1), myGlobals(globalsIn){}
 	virtual std::string nodeKind() override { return "Program"; }
 	void unparse(std::ostream&, int) override;
-	virtual bool nameAnalysis(SymbolTable *) override;
+  std::list<StmtNode *> * getGlobals() { return myGlobals; }
+  void addGlobal(StmtNode * stmt) {
+    if(myGlobals->size() == 0){
+      myGlobals = new std::list<StmtNode *>();
+    }
+    myGlobals->push_back(stmt);
+  }
+  virtual bool nameAnalysis(SymbolTable *) override;
 	virtual void typeAnalysis(TypeAnalysis *);
 	IRProgram * to3AC(TypeAnalysis * ta);
 	virtual ~ProgramNode(){ }
 private:
-	std::list<DeclNode *> * myGlobals;
+	std::list<StmtNode *> * myGlobals;
 };
 
 class ExpNode : public ASTNode{

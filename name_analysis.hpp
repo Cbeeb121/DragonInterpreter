@@ -19,7 +19,7 @@ public:
 	}
 	ProgramNode * ast;
 
-private:
+// private:
 	NameAnalysis(){
 	}
 };

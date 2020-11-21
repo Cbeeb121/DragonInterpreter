@@ -5,7 +5,7 @@ namespace holeyc{
 IRProgram * ProgramNode::to3AC(TypeAnalysis * ta){
 	IRProgram * prog = new IRProgram(ta);
 	for (auto global : *myGlobals){
-		global->to3AC(prog);
+		// global->to3AC(prog);
 	}
 	return prog;
 }

@@ -20,12 +20,15 @@ class TypeAnalysis {
 private:
 	//The private constructor here means that the type analysis
 	// can only be created via the static build function
-	TypeAnalysis(){
-		hasError = false;
-	}
+	// TypeAnalysis(){
+	// 	hasError = false;
+	// }
 
 public:
-	static TypeAnalysis * build(NameAnalysis * astRoot);
+  TypeAnalysis(){
+    hasError = false;
+  }
+  static TypeAnalysis * build(NameAnalysis * astRoot);
 	//static TypeAnalysis * build();
 
 	//The type analysis has an instance variable to say whether

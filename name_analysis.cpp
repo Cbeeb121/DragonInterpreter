@@ -83,20 +83,18 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 	if (!validType){
 		NameErr::badVarType(line(), col()); 
 	}
-
-	bool validName = !symTab->clash(varName);
+  // bool validName = !symTab->clash(varName);
+  bool validName = true;
 	if (!validName){ 
 		NameErr::multiDecl(ID()->line(), ID()->col()); 
 	}
-
 	if (!validType || !validName){ 
 		return false; 
 	} else {
 		VarSymbol * sym = new VarSymbol(varName, dataType);
 		ID()->attachSymbol(sym);
 		symTab->insert(sym);
-		
-		return true;
+    return true;
 	}
 }
 

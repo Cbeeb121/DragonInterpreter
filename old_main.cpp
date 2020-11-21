@@ -127,37 +127,7 @@ static holeyc::TypeAnalysis *doTypeAnalysis(std::ifstream *input)
   return holeyc::TypeAnalysis::build(nameAnalysis);
 }
 
-static holeyc::IRProgram *do3AC(std::ifstream *input)
-{
-  holeyc::TypeAnalysis *typeAnalysis = doTypeAnalysis(input);
-  if (typeAnalysis == nullptr)
-  {
-    return nullptr;
-  }
-
-  return typeAnalysis->ast->to3AC(typeAnalysis);
-}
-
-static void write3AC(holeyc::IRProgram *prog, const char *outPath)
-{
-  if (outPath == nullptr)
-  {
-    throw new InternalError("Null 3AC file given");
-  }
-  std::string flatProg = prog->toString();
-  if (strcmp(outPath, "--") == 0)
-  {
-    std::cout << flatProg << std::endl;
-  }
-  else
-  {
-    std::ofstream outStream(outPath);
-    outStream << flatProg << std::endl;
-    outStream.close();
-  }
-}
-
-int main(int argc, char *argv[])
+int old_main(int argc, char *argv[]) // this function was originaly main but it was causing problems
 {
   if (argc <= 1)
   {
@@ -290,19 +260,6 @@ int main(int argc, char *argv[])
     }
     if (checkTypes)
     {
-      if (doTypeAnalysis(input) != nullptr)
-      {
-        return 0;
-      }
-      std::cerr << "Type Analysis Failed\n";
-      return 1;
-    }
-    if (threeACFile)
-    {
-      if (auto prog = do3AC(input))
-      {
-        write3AC(prog, threeACFile);
-      }
       if (doTypeAnalysis(input) != nullptr)
       {
         return 0;

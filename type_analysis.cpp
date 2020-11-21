@@ -96,6 +96,18 @@ void AssignExpNode::typeAnalysis(TypeAnalysis * typing){
 
 	if (dstType == srcType){
 		typing->nodeType(this, dstType);
+    if(dstType->isInt()){
+      int * val = mySrc->getIntValue();
+      myDst->addValueToSymbol(val,nullptr,nullptr);
+    } else if (dstType->isBool()){
+      bool * val = mySrc->getBoolValue();
+      myDst->addValueToSymbol(nullptr,val,nullptr);
+    } else if (dstType->isChar()) {
+      char * val = mySrc->getCharValue();
+      myDst->addValueToSymbol(nullptr,nullptr,val);
+    } else {
+      throw new InternalError("LHS must be Int, Bool or Char\n");
+    }
 		return;
 	}
 
@@ -112,6 +124,18 @@ void AssignExpNode::typeAnalysis(TypeAnalysis * typing){
 	typing->badAssignOpr(line(), col());
 	typing->nodeType(this, ErrorType::produce());
 	return;
+}
+
+void IDNode::addValueToSymbol(int *valInt, bool *valBool, char *valChar) {
+  if(valInt){
+    mySymbol->addIntValue(*valInt);
+  } else if (valBool) {
+    mySymbol->addBoolValue(*valBool);
+  } else if (valChar) {
+    mySymbol->addCharValue(*valChar);
+  } else {
+    cout << "\nNo value ever given to this.\n";
+  }
 }
 
 void CallExpNode::typeAnalysis(TypeAnalysis * typing){

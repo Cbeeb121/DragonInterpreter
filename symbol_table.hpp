@@ -41,7 +41,34 @@ public:
 			case FN: return "fn";
 		}
 		return "UNKNOWN KIND";
-	} 
+	}
+  
+  void addIntValue(int val) {
+    myValInt = val;
+  }
+  void addBoolValue(bool val) {
+    myValBool = val;
+  }
+  void addCharValue(bool val) {
+    myValChar = val;
+  }
+
+  int * getIntVal() {
+    int * val = new int;
+    *val = myValInt ;
+    return val;
+  }
+  char * getCharVal() {
+    char * val = new char;
+    *val = myValChar;
+    return val;
+  }
+  bool * getBoolVal() {
+    bool * val = new bool;
+    *val = myValBool;
+    return val;
+  }
+
 private:
 	std::string myName;
   DataType * myType;

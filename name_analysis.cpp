@@ -83,8 +83,7 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 	if (!validType){
 		NameErr::badVarType(line(), col()); 
 	}
-  // bool validName = !symTab->clash(varName);
-  bool validName = true;
+  bool validName = !symTab->clash(varName);
 	if (!validName){ 
 		NameErr::multiDecl(ID()->line(), ID()->col()); 
 	}

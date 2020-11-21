@@ -50,8 +50,6 @@ int main(){
       }
       input = temp;
     }
-    // ifstream myInputStream(input);
-    // temp = syntacticAnalysis(&myInputStream);
     ofstream outStream("string.txt");
     outStream << input;
     outStream.close();

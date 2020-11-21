@@ -24,7 +24,7 @@ int main(){
       return 0;
     }
     if(input.find("{") != string::npos){
-      int brace_equality = 1;
+      size_t brace_equality = 1;
       string tabs = "";
       while(brace_equality != 0) {
         cin.clear();

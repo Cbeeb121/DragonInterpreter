@@ -1,0 +1,51 @@
+Need to manipulate Bison
+
+
+It would be against the project to compile and run internally and it won't work.
+
+
+Everytime there is a new statement, you are interactively adding to the symbol table.
+
+You can basically lop off the back end (every thing 3ac on)
+
+Every statement: 
+1. Do nameAnalysis
+2. Do TypeAnalysis
+3. Store in SymbolTable 
+
+
+
+In SymTable rn, it stores kind, type and name. 
+Just also add a field (Value) on that. 
+
+THen when you do a lookup to the sym table, assign a new value.
+
+
+
+if we see a left curly brace, wait until you see right curly brace that matches.
+Adjust for multiple sets of curly braces.
+
+
+To do it: 
+
+Let's say your in global context. Someone types a + b; 
+Bison is gonna recognize a + b; You should have some function `eval` which 
+takes the last statement and evaluates it if necessary. 
+
+You will have to "eval" 
+	- assignments (store value in SymbolTable using value field)
+	- arithmetic operations (plus, OR, NOT) (Solve using `eval` and store in SymbolTable if necessary)
+	- I/O (TOCONSOLE, FROMCONSOLE)
+	- Functions (Make sure to track multiple curly brace instances (brace_counter)
+
+
+ME: I have input working and all. 
+Ideally I pass input through nameAnalysis and typeAnalysis and THEN evaluate it depending on the result from those two? 
+All the while maintaining a SymbolTable
+
+DREW: Yeah, I think that's what I had in mind
+TBH, type analysis can sort of be done ad hoc since the type system is so simple
+But you sorta need type analysis to determine if the program is ill-formed before running a statement
+
+"You should be building an AST" 
+Every time you see a statement 

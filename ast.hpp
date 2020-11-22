@@ -240,7 +240,7 @@ public:
 	virtual void unparse(std::ostream& out, int indent) override = 0;
 	virtual std::string nodeKind() override = 0;
 	virtual void typeAnalysis(TypeAnalysis *) = 0;
-	// virtual void to3AC(Procedure * proc) = 0;
+  virtual bool isFnDecl() { return false; }
 };
 
 class DeclNode : public StmtNode{
@@ -263,8 +263,6 @@ public:
 	TypeNode * getTypeNode(){ return myType; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	void typeAnalysis(TypeAnalysis * typing) override;
-	// virtual void to3AC(Procedure * proc) override;
-	// virtual void to3AC(IRProgram * prog) override;
 private:
 	TypeNode * myType;
 	IDNode * myID;
@@ -276,8 +274,6 @@ public:
 	: VarDeclNode(lIn, cIn, type, id){ }
 	void unparse(std::ostream& out, int indent) override;
 	virtual std::string nodeKind() override { return "FormalDecl"; }
-	// virtual void to3AC(Procedure * proc) override;
-	// virtual void to3AC(IRProgram * prog) override;
 };
 
 class FnDeclNode : public DeclNode{
@@ -297,11 +293,10 @@ public:
 	virtual std::string nodeKind() override { return "FnDecl"; }
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// void to3AC(IRProgram * prog) override;
-	// void to3AC(Procedure * prog) override;
 	virtual TypeNode * getRetTypeNode() { 
 		return myRetType;
 	}
+  virtual bool isFnDecl() override { return true; }
 private:
 	IDNode * myID;
 	TypeNode * myRetType;
@@ -317,7 +312,6 @@ public:
 	virtual std::string nodeKind() override { return "AssignStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
 private:
 	AssignExpNode * myExp;
 };
@@ -330,7 +324,6 @@ public:
 	virtual std::string nodeKind() override { return "FromConsoleStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
 private:
 	LValNode * myDst;
 };
@@ -343,7 +336,6 @@ public:
 	virtual std::string nodeKind() override { return "ToConsoleStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
 private:
 	ExpNode * mySrc;
 };
@@ -356,7 +348,6 @@ public:
 	virtual std::string nodeKind() override { return "PostDecStmt"; }
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
   virtual int *getIntValue() {
     int *val = new int;
     int *val2 = myLVal->getIntValue();
@@ -375,7 +366,6 @@ public:
 	virtual std::string nodeKind() override { return "PostIncStmt"; }
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
   virtual int *getIntValue() {
     int *val = new int;
     int *val2 = myLVal->getIntValue();
@@ -395,7 +385,6 @@ public:
 	std::string nodeKind() override { return "IfStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
 private:
 	ExpNode * myCond;
 	std::list<StmtNode *> * myBody;
@@ -412,7 +401,6 @@ public:
 	std::string nodeKind() override { return "IfElseStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
 private:
 	ExpNode * myCond;
 	std::list<StmtNode *> * myBodyTrue;
@@ -428,7 +416,6 @@ public:
 	virtual std::string nodeKind() override { return "WhileStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * prog) override;
 private:
 	ExpNode * myCond;
 	std::list<StmtNode *> * myBody;
@@ -442,7 +429,6 @@ public:
 	virtual std::string nodeKind() override { return "ReturnStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	// virtual void to3AC(Procedure * proc) override;
 private:
 	ExpNode * myExp;
 };
@@ -457,11 +443,6 @@ public:
 	bool nameAnalysis(SymbolTable * symTab) override;
 	void typeAnalysis(TypeAnalysis *) override;
 	DataType * getRetType();
-
-	// virtual Opd * flatten(Procedure * proc) override;
-  // virtual int *getIntValue() override { return nullptr; } // COMPLETE ME
-  // virtual bool *getBoolValue() override { return nullptr; } // COMPLETE ME
-  // virtual char *getCharValue() override { return nullptr; } // COMPLETE ME
 private:
 	IDNode * myID;
 	std::list<ExpNode *> * myArgs;

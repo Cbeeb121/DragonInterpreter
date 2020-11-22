@@ -49,7 +49,7 @@ public:
   void addBoolValue(bool val) {
     myValBool = val;
   }
-  void addCharValue(bool val) {
+  void addCharValue(char val) {
     myValChar = val;
   }
 

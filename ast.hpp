@@ -357,6 +357,12 @@ public:
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
 	virtual void to3AC(Procedure * prog) override;
+  virtual int *getIntValue() {
+    int *val = new int;
+    int *val2 = myLVal->getIntValue();
+    *val = *val2 - 1;
+    return val;
+  }
 private:
 	LValNode * myLVal;
 };
@@ -370,9 +376,15 @@ public:
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
 	virtual void to3AC(Procedure * prog) override;
-private:
-	LValNode * myLVal;
-};
+  virtual int *getIntValue() {
+    int *val = new int;
+    int *val2 = myLVal->getIntValue();
+    *val = *val2 + 1;
+    return val;
+  }
+  private:
+    LValNode *myLVal;
+  };
 
 class IfStmtNode : public StmtNode{
 public:

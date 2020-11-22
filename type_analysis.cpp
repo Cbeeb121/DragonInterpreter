@@ -574,11 +574,16 @@ static const DataType * typeUnaryMath(
 void PostDecStmtNode::typeAnalysis(TypeAnalysis * typing){
 	typing->nodeType(this, typeUnaryMath(this->line(), 
 		this->col(), typing, myLVal));
+    (*this->getIntValue())--;
+    myLVal->addValueToSymbol(this->getIntValue(), nullptr, nullptr);
 }
 
 void PostIncStmtNode::typeAnalysis(TypeAnalysis * typing){
 	typing->nodeType(this, typeUnaryMath(this->line(), 
 		this->col(), typing, myLVal));
+    this->getIntValue();
+    (*this->getIntValue())++;
+    myLVal->addValueToSymbol(this->getIntValue(), nullptr, nullptr);
 }
 
 void FromConsoleStmtNode::typeAnalysis(TypeAnalysis * typing){
@@ -673,9 +678,11 @@ void IfStmtNode::typeAnalysis(TypeAnalysis * typing){
 			ErrorType::produce());
 	}
 
-	for (auto stmt : *myBody){
-		stmt->typeAnalysis(typing);
-	}
+  if(myCond->getBoolValue() && (*myCond->getBoolValue())){
+    for (auto stmt : *myBody){
+      stmt->typeAnalysis(typing);
+    }
+  }
 
 	if (goodCond){
 		typing->nodeType(this, BasicType::produce(VOID));
@@ -696,12 +703,15 @@ void IfElseStmtNode::typeAnalysis(TypeAnalysis * typing){
 		typing->badIfCond(myCond->line(), myCond->col());
 		goodCond = false;
 	}
-	for (auto stmt : *myBodyTrue){
-		stmt->typeAnalysis(typing);
-	}
-	for (auto stmt : *myBodyFalse){
-		stmt->typeAnalysis(typing);
-	}
+  if (myCond->getBoolValue() && (*myCond->getBoolValue())){
+    for (auto stmt : *myBodyTrue){
+      stmt->typeAnalysis(typing);
+    }
+  } else {
+    for (auto stmt : *myBodyFalse){
+      stmt->typeAnalysis(typing);
+    }
+  }
 	
 	if (goodCond){
 		typing->nodeType(this, BasicType::produce(VOID));

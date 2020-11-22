@@ -55,7 +55,7 @@ public:
 
   int * getIntVal() {
     int * val = new int;
-    *val = myValInt ;
+    *val = myValInt;
     return val;
   }
   char * getCharVal() {

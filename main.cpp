@@ -59,14 +59,13 @@ int main(){
     stmt = temp->getGlobals()->front(); // expect the input to be converted into a StmtNode found at the front of the globals list
     ast->addGlobal(stmt);
     if(!ast->getGlobals()->back()->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition
-      // ERROR
-      return 1; 
+      return 1;
     } else {
       ast->getGlobals()->back()->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
       // TypeAnalysis will handle:
       // 1) setting values (a = 2; set a's symbol value to 2)
       // 2) printing (TOCONSOLE b; just print b's value)
-      // 3) arithmetic shit ( &&, +, -)
+      // 3) arithmetic stuff ( &&, +, -)
     }
   }
   symTab->leaveScope();

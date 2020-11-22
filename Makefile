@@ -17,6 +17,7 @@ clean:
 
 dragoninterp: $(OBJ_SRCS)
 	$(CXX) $(FLAGS) -g -std=c++14 -o $@ $(OBJ_SRCS)
+	./dragoninterp
 
 %.o: %.cpp 
 	$(CXX) $(FLAGS) -g -std=c++14 -MMD -MP -c -o $@ $<

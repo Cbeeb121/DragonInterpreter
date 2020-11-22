@@ -624,15 +624,24 @@ void ToConsoleStmtNode::typeAnalysis(TypeAnalysis * typing){
 		return;
 	} else if (childType->asBasic()){
 		//Can write to a var of any other type
-		return;
-	}
-
-	if (const PtrType * asPtr = childType->asPtr()){
+    cout << "> "; 
+    if(childType->isInt()){
+      cout << (*mySrc->getIntValue()) << endl;
+    } else if(childType->isChar()){
+      cout << (*mySrc->getCharValue()) << endl;
+    } else if(childType->isBool()){
+      cout << (*mySrc->getBoolValue()) << endl;
+    } else {
+      cout << "BasicType is not a basicType?\n";
+    }
+  }
+  if (const PtrType * asPtr = childType->asPtr()){
 		const DataType * deref = PtrType::derefType(asPtr);
 		const BasicType * base = deref->asBasic();
 		assert(base != nullptr);
 			
 		if (base->isChar()){
+      cout << (*mySrc->getStrValue()) << endl;
 			typing->nodeType(this, BasicType::VOID());
 		} else {
 			size_t line = mySrc->line();

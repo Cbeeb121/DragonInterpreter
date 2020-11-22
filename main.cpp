@@ -61,7 +61,11 @@ int main(){
     if(!ast->getGlobals()->back()->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition
       return 1;
     } else {
-      ast->getGlobals()->back()->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
+      if (ast->getGlobals()->back()->isFnDecl()){
+        // deal with functions differently.
+      } else {
+        ast->getGlobals()->back()->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
+      }
       // TypeAnalysis will handle:
       // 1) setting values (a = 2; set a's symbol value to 2)
       // 2) printing (TOCONSOLE b; just print b's value)

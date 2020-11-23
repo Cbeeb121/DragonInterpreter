@@ -37,6 +37,10 @@ int main(){
       return 0;
     }
     if(input.find("{") != string::npos){
+      if ((input.find("if") != string::npos || input.find("while") != string::npos) && (input.find("(") != string::npos && input.find(")") != string::npos)){
+        cout << "ERROR: Cannot perform conditionals outside of a function.\n";
+        return 1;
+      }
       string temp = input + "\n";
       size_t brace_equality = 1;
       string tabs = "";
@@ -59,14 +63,15 @@ int main(){
     stmt = temp->getGlobals()->front(); // expect the input to be converted into a StmtNode found at the front of the globals list
     ast->addGlobal(stmt);
     StmtNode * current_stmt = ast->getGlobals()->back();
-    if(!current_stmt->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition
+    if(!current_stmt->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition. Quit if failure.
       return 1;
     } else {
       if (current_stmt->isFnDecl()){
         // deal with functions differently.
+        // maintain pointer to function. 
       } else {
         current_stmt->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
-        current_stmt->eval(symTab);
+        // current_stmt->eval(symTab);
       }
       // TypeAnalysis will handle:
       // 1) setting values (a = 2; set a's symbol value to 2)

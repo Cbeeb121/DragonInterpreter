@@ -87,15 +87,15 @@ static const DataType * typeAssignOpd(TypeAnalysis * typing, ExpNode * opd){
 
 void AssignExpNode::typeAnalysis(TypeAnalysis * typing){
 	const DataType * dstType = typeAssignOpd(typing, myDst);
-	const DataType * srcType = typeAssignOpd(typing, mySrc);
+  const DataType * srcType = typeAssignOpd(typing, mySrc);
 
-	if (!dstType || !srcType){
-		typing->nodeType(this, ErrorType::produce());
+  if (!dstType || !srcType){
+    typing->nodeType(this, ErrorType::produce());
 		return;
 	}
 
 	if (dstType == srcType){
-		typing->nodeType(this, dstType);
+    typing->nodeType(this, dstType);
     if(dstType->isInt()){
       int * val = mySrc->getIntValue();
       myDst->addValueToSymbol(val,nullptr,nullptr);
@@ -506,7 +506,6 @@ static const DataType * typeRelOpd(
 }
 
 void BinaryExpNode::binaryRelTyping(TypeAnalysis * typing){
-  cout << "might need Opd stuff back...\n";
 	const DataType * lhsType = typeRelOpd(typing, myExp1);
 	const DataType * rhsType = typeRelOpd(typing, myExp2);
 

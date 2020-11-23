@@ -58,13 +58,15 @@ int main(){
     if(temp == nullptr){ cout << "error!"; return 1; }
     stmt = temp->getGlobals()->front(); // expect the input to be converted into a StmtNode found at the front of the globals list
     ast->addGlobal(stmt);
-    if(!ast->getGlobals()->back()->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition
+    StmtNode * current_stmt = ast->getGlobals()->back();
+    if(!current_stmt->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition
       return 1;
     } else {
-      if (ast->getGlobals()->back()->isFnDecl()){
+      if (current_stmt->isFnDecl()){
         // deal with functions differently.
       } else {
-        ast->getGlobals()->back()->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
+        current_stmt->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
+        current_stmt->eval(symTab);
       }
       // TypeAnalysis will handle:
       // 1) setting values (a = 2; set a's symbol value to 2)

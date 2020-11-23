@@ -506,6 +506,7 @@ static const DataType * typeRelOpd(
 }
 
 void BinaryExpNode::binaryRelTyping(TypeAnalysis * typing){
+  cout << "might need Opd stuff back...\n";
 	const DataType * lhsType = typeRelOpd(typing, myExp1);
 	const DataType * rhsType = typeRelOpd(typing, myExp2);
 

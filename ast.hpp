@@ -66,7 +66,7 @@ public:
   virtual bool isFnDecl() { return false; }
   virtual bool isCallStmt() { return false; }
   virtual CallExpNode *getCallExp() { return nullptr; }
-  virtual bool callFnName(string name) { cout << "still calling me"; return false; }
+  virtual bool callFnName(string name) { return false; }
 };
 
 class ProgramNode : public ASTNode{
@@ -983,8 +983,6 @@ public:
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool isCallStmt() override { return true; }
   virtual bool callFnName(string name) override {
-    cout << "-" << myCallExp->getID()->getName() << "-\n";
-    cout << "-" << name << "-\n";
     if(myCallExp->getID()->getName() == name){
       return true; 
     } else {

@@ -24,9 +24,6 @@ SymbolTable *symTab = new SymbolTable();
 int main(){
   holeyc::ProgramNode * temp = nullptr;
   StmtNode * stmt = nullptr;
-  // holeyc::NameAnalysis *nameAnalysis = new holeyc::NameAnalysis;
-  // TypeAnalysis *typeAnalysis = new TypeAnalysis();
-  // SymbolTable *symTab = new SymbolTable();
   ast->nameAnalysis(symTab);
   symTab->enterScope();
 

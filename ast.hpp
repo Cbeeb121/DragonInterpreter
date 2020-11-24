@@ -461,6 +461,15 @@ public:
 	bool nameAnalysis(SymbolTable * symTab) override;
 	void typeAnalysis(TypeAnalysis *) override;
 	DataType * getRetType();
+  // int * getIntValue() override {
+
+  // }
+  // bool * getBoolValue() override {
+
+  // }
+  // char * getCharValue() override {
+
+  // }
 private:
 	IDNode * myID;
 	std::list<ExpNode *> * myArgs;

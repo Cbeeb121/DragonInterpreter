@@ -134,7 +134,6 @@ void IDNode::addValueToSymbol(int *valInt, bool *valBool, char *valChar) {
   } else if (valChar) {
     mySymbol->addCharValue(*valChar);
   } else {
-    cout << "\nNo value ever given to this.\n";
   }
 }
 
@@ -638,7 +637,6 @@ void ToConsoleStmtNode::typeAnalysis(TypeAnalysis * typing){
     } else if(childType->isBool()){
       cout << (*mySrc->getBoolValue()) << endl;
     } else {
-      cout << "BasicType is not a basicType?\n";
     }
   }
   if (const PtrType * asPtr = childType->asPtr()){

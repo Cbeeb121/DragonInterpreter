@@ -34,6 +34,7 @@ class StructTypeNode;
 class ExpNode;
 class LValNode;
 class IDNode;
+class CallExpNode;
 
 class ASTNode{
 public:
@@ -54,6 +55,18 @@ public:
 private:
 	size_t l;
 	size_t c;
+};
+
+class StmtNode : public ASTNode{
+public:
+  StmtNode(size_t lIn, size_t cIn) : ASTNode(lIn, cIn) {}
+  virtual void unparse(std::ostream &out, int indent) override = 0;
+  virtual std::string nodeKind() override = 0;
+  virtual void typeAnalysis(TypeAnalysis *) = 0;
+  virtual bool isFnDecl() { return false; }
+  virtual bool isCallStmt() { return false; }
+  virtual CallExpNode *getCallExp() { return nullptr; }
+  virtual bool callFnName(string name) { cout << "still calling me"; return false; }
 };
 
 class ProgramNode : public ASTNode{
@@ -83,7 +96,6 @@ public:
 	virtual void unparse(std::ostream& out, int indent) override = 0;
 	virtual bool nameAnalysis(SymbolTable * symTab) override = 0;
 	virtual void typeAnalysis(TypeAnalysis *) = 0;
-  virtual void eval(SymbolTable *symTab);
   virtual int * getIntValue() { return nullptr; }
   virtual bool * getBoolValue() { return nullptr; }
   virtual char * getCharValue() { return nullptr; }
@@ -128,7 +140,7 @@ public:
       return nullptr;
     }
   }
-  virtual bool *getBoolValue() override {
+  virtual bool * getBoolValue() override {
     if(mySymbol){
       return mySymbol->getBoolVal();
     } else {
@@ -231,14 +243,17 @@ private:
 	bool isPtr;
 };
 
-class StmtNode : public ASTNode{
-public:
-	StmtNode(size_t lIn, size_t cIn) : ASTNode(lIn, cIn){ }
-	virtual void unparse(std::ostream& out, int indent) override = 0;
-	virtual std::string nodeKind() override = 0;
-	virtual void typeAnalysis(TypeAnalysis *) = 0;
-  virtual bool isFnDecl() { return false; }
-};
+// class StmtNode : public ASTNode{
+// public:
+// 	StmtNode(size_t lIn, size_t cIn) : ASTNode(lIn, cIn){ }
+// 	virtual void unparse(std::ostream& out, int indent) override = 0;
+// 	virtual std::string nodeKind() override = 0;
+// 	virtual void typeAnalysis(TypeAnalysis *) = 0;
+//   virtual bool isFnDecl() { return false; }
+//   virtual bool isCallStmt() { return false; }
+//   virtual CallExpNode * getCallExp() { return nullptr; }
+//   virtual bool callFnName(string name) { return false; }
+// };
 
 class DeclNode : public StmtNode{
 public:
@@ -292,6 +307,13 @@ public:
 		return myRetType;
 	}
   virtual bool isFnDecl() override { return true; }
+  virtual bool callFnName(string name) override {
+    if (myID->getName() == name){
+      return true;
+    } else {
+      return false;
+    }
+  }
 private:
 	IDNode * myID;
 	TypeNode * myRetType;
@@ -435,6 +457,7 @@ public:
 	: ExpNode(l, c), myID(id), myArgs(argsIn){ }
 	void unparse(std::ostream& out, int indent) override;
 	virtual std::string nodeKind() override { return "CallExp"; }
+  IDNode * getID() { return myID; }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	void typeAnalysis(TypeAnalysis *) override;
 	DataType * getRetType();
@@ -446,16 +469,28 @@ private:
 class BinaryExpNode : public ExpNode{
 public:
 	BinaryExpNode(size_t lIn, size_t cIn, ExpNode * lhs, ExpNode * rhs)
-	: ExpNode(lIn, cIn), myExp1(lhs), myExp2(rhs) { }
+	: ExpNode(lIn, cIn), myExp1(lhs), myExp2(rhs), expTypes("") { }
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override = 0;
+  bool matchesExpTypes(string type) { return expTypes == type; }
 protected:
 	ExpNode * myExp1;
 	ExpNode * myExp2;
+  string expTypes;
 	void binaryLogicTyping(TypeAnalysis * typing);
 	void binaryEqTyping(TypeAnalysis * typing);
 	void binaryRelTyping(TypeAnalysis * typing);
 	void binaryMathTyping(TypeAnalysis * typing);
+  virtual void setExpTypes(const DataType * type){
+    if(type->isInt()){
+      expTypes = "int";
+    } else if (type->isChar()){
+      expTypes = "char";
+    } else if (type->isBool()){
+      expTypes = "bool";
+    } else {
+    }
+  }
 };
 
 class PlusNode : public BinaryExpNode{
@@ -571,25 +606,20 @@ public:
 	std::string nodeKind() override { return "Eq"; }
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool *getBoolValue() override {
-    bool *val = new bool;
-    bool *val1 = myExp1->getBoolValue();
-    if (val1 != nullptr){
+    bool * val = new bool;
+    if(matchesExpTypes("bool")){
+      bool * val1 = myExp1->getBoolValue();
       bool *val2 = myExp2->getBoolValue();
       *val = *val1 == *val2;
-    }
-    else{
+    } else if (matchesExpTypes("int")){
       int *ival1 = myExp1->getIntValue();
-      if (ival1 != nullptr){
-        int *ival2 = myExp2->getIntValue();
-        *val = *ival1 == *ival2;
-      }
-      else{
-        char *cval1 = myExp1->getCharValue();
-        if (cval1 != nullptr){
-          char *cval2 = myExp2->getCharValue();
-          *val = *cval1 == *cval2;
-        }
-      }
+      int *ival2 = myExp2->getIntValue();
+      *val = *ival1 == *ival2;
+    } else if (matchesExpTypes("char")){
+      char *cval1 = myExp1->getCharValue();
+      char *cval2 = myExp2->getCharValue();
+      *val = *cval1 == *cval2;
+    } else {
     }
     return val;
   }
@@ -604,22 +634,19 @@ public:
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool *getBoolValue() override { 
     bool * val = new bool;
-    bool * val1 = myExp1->getBoolValue();
-    if(val1 != nullptr){
-      bool * val2 = myExp2->getBoolValue();
-      *val = *val1 != *val2; 
+    if(matchesExpTypes("bool")){
+      bool * val1 = myExp1->getBoolValue();
+      bool *val2 = myExp2->getBoolValue();
+      *val = *val1 != *val2;
+    } else if (matchesExpTypes("int")){
+      int *ival1 = myExp1->getIntValue();
+      int *ival2 = myExp2->getIntValue();
+      *val = *ival1 != *ival2;
+    } else if (matchesExpTypes("char")){
+      char *cval1 = myExp1->getCharValue();
+      char *cval2 = myExp2->getCharValue();
+      *val = *cval1 != *cval2;
     } else {
-      int * ival1 = myExp1->getIntValue();
-      if(ival1 != nullptr){
-        int *ival2 = myExp2->getIntValue();
-        *val = *ival1 != *ival2; 
-      } else {
-        char * cval1 = myExp1->getCharValue();
-        if(cval1 != nullptr){
-          char *cval2 = myExp2->getCharValue();
-          *val = *cval1 != *cval2;
-        }
-      }
     }
     return val;
   }
@@ -634,18 +661,20 @@ public:
 	std::string nodeKind() override { return "Less"; }
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool *getBoolValue() override {
-    bool *val = new bool;
-    int *ival1 = myExp1->getIntValue();
-    if (ival1 != nullptr){
+    bool * val = new bool;
+    if(matchesExpTypes("bool")){
+      bool * val1 = myExp1->getBoolValue();
+      bool *val2 = myExp2->getBoolValue();
+      *val = *val1 < *val2;
+    } else if (matchesExpTypes("int")){
+      int *ival1 = myExp1->getIntValue();
       int *ival2 = myExp2->getIntValue();
       *val = *ival1 < *ival2;
-    }
-    else{
+    } else if (matchesExpTypes("char")){
       char *cval1 = myExp1->getCharValue();
-      if (cval1 != nullptr){
-        char *cval2 = myExp2->getCharValue();
-        *val = *cval1 < *cval2;
-      }
+      char *cval2 = myExp2->getCharValue();
+      *val = *cval1 < *cval2;
+    } else {
     }
     return val;
   }
@@ -659,18 +688,20 @@ public:
 	std::string nodeKind() override { return "LessEq"; }
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool *getBoolValue() override {
-    bool *val = new bool;
-    int *ival1 = myExp1->getIntValue();
-    if (ival1 != nullptr){
+    bool * val = new bool;
+    if(matchesExpTypes("bool")){
+      bool * val1 = myExp1->getBoolValue();
+      bool *val2 = myExp2->getBoolValue();
+      *val = *val1 <= *val2;
+    } else if (matchesExpTypes("int")){
+      int *ival1 = myExp1->getIntValue();
       int *ival2 = myExp2->getIntValue();
       *val = *ival1 <= *ival2;
-    }
-    else{
+    } else if (matchesExpTypes("char")){
       char *cval1 = myExp1->getCharValue();
-      if (cval1 != nullptr){
-        char *cval2 = myExp2->getCharValue();
-        *val = *cval1 <= *cval2;
-      }
+      char *cval2 = myExp2->getCharValue();
+      *val = *cval1 <= *cval2;
+    } else {
     }
     return val;
   }
@@ -685,18 +716,20 @@ public:
 	std::string nodeKind() override { return "GreaterEq"; }
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool *getBoolValue() override {
-    bool *val = new bool;
-    int *ival1 = myExp1->getIntValue();
-    if (ival1 != nullptr){
+    bool * val = new bool;
+    if(matchesExpTypes("bool")){
+      bool * val1 = myExp1->getBoolValue();
+      bool *val2 = myExp2->getBoolValue();
+      *val = *val1 > *val2;
+    } else if (matchesExpTypes("int")){
+      int *ival1 = myExp1->getIntValue();
       int *ival2 = myExp2->getIntValue();
       *val = *ival1 > *ival2;
-    }
-    else{
+    } else if (matchesExpTypes("char")){
       char *cval1 = myExp1->getCharValue();
-      if (cval1 != nullptr){
-        char *cval2 = myExp2->getCharValue();
-        *val = *cval1 > *cval2;
-      }
+      char *cval2 = myExp2->getCharValue();
+      *val = *cval1 > *cval2;
+    } else {
     }
     return val;
   }
@@ -710,18 +743,20 @@ public:
 	std::string nodeKind() override { return "GreaterEq"; }
 	virtual void typeAnalysis(TypeAnalysis *) override;
   virtual bool *getBoolValue() override {
-    bool *val = new bool;
-    int *ival1 = myExp1->getIntValue();
-    if (ival1 != nullptr){
+       bool * val = new bool;
+    if(matchesExpTypes("bool")){
+      bool * val1 = myExp1->getBoolValue();
+      bool *val2 = myExp2->getBoolValue();
+      *val = *val1 >= *val2;
+    } else if (matchesExpTypes("int")){
+      int *ival1 = myExp1->getIntValue();
       int *ival2 = myExp2->getIntValue();
       *val = *ival1 >= *ival2;
-    }
-    else{
+    } else if (matchesExpTypes("char")){
       char *cval1 = myExp1->getCharValue();
-      if (cval1 != nullptr){
-        char *cval2 = myExp2->getCharValue();
-        *val = *cval1 >= *cval2;
-      }
+      char *cval2 = myExp2->getCharValue();
+      *val = *cval1 >= *cval2;
+    } else {
     }
     return val;
   }
@@ -935,7 +970,18 @@ public:
 	void unparse(std::ostream& out, int indent) override;
 	std::string nodeKind() override { return "CallStmt"; }
 	bool nameAnalysis(SymbolTable * symTab) override;
+  virtual CallExpNode * getCallExp() override { return myCallExp; }
 	virtual void typeAnalysis(TypeAnalysis *) override;
+  virtual bool isCallStmt() override { return true; }
+  virtual bool callFnName(string name) override {
+    cout << "-" << myCallExp->getID()->getName() << "-\n";
+    cout << "-" << name << "-\n";
+    if(myCallExp->getID()->getName() == name){
+      return true; 
+    } else {
+      return false;
+    }
+  }
 private:
 	CallExpNode * myCallExp;
 };

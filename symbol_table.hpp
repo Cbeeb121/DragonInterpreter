@@ -44,13 +44,20 @@ public:
 	}
   
   void addIntValue(int val) {
+    valType = "int";
     myValInt = val;
   }
   void addBoolValue(bool val) {
+    valType = "bool";
     myValBool = val;
   }
   void addCharValue(char val) {
+    valType = "char";
     myValChar = val;
+  }
+
+  string getValType(){
+    return valType;
   }
 
   int * getIntVal() {
@@ -73,6 +80,7 @@ private:
 	std::string myName;
   DataType * myType;
   std::string myValString; // CLB: 11/21/20
+  string valType = ""; 
   int myValInt; // CLB: 11/21/20
   char myValChar; // CLB: 11/21/20
   bool myValBool; // CLB: 11/21/20

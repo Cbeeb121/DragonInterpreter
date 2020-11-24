@@ -11,18 +11,22 @@
 using namespace holeyc;
 using namespace std;
 
-bool dealWithInput(string input);
+void evaluateCallStmt(StmtNode * callStmt);
 static holeyc::ProgramNode *syntacticAnalysis(std::ifstream *input);
 static holeyc::NameAnalysis *doNameAnalysis(std::ifstream *input);
 static holeyc::TypeAnalysis * doTypeAnalysis(std::ifstream *input);
 
+holeyc::ProgramNode * ast = new holeyc::ProgramNode(new std::list<StmtNode *>()); // this is the ast we will be adding globals to.
+holeyc::NameAnalysis *nameAnalysis = new holeyc::NameAnalysis;
+TypeAnalysis *typeAnalysis = new TypeAnalysis();
+SymbolTable *symTab = new SymbolTable();
+
 int main(){
-  holeyc::ProgramNode * ast = new holeyc::ProgramNode(new std::list<StmtNode *>()); // this is the ast we will be adding globals to.
   holeyc::ProgramNode * temp = nullptr;
   StmtNode * stmt = nullptr;
-  holeyc::NameAnalysis *nameAnalysis = new holeyc::NameAnalysis;
-  TypeAnalysis *typeAnalysis = new TypeAnalysis();
-  SymbolTable *symTab = new SymbolTable();
+  // holeyc::NameAnalysis *nameAnalysis = new holeyc::NameAnalysis;
+  // TypeAnalysis *typeAnalysis = new TypeAnalysis();
+  // SymbolTable *symTab = new SymbolTable();
   ast->nameAnalysis(symTab);
   symTab->enterScope();
 
@@ -66,40 +70,36 @@ int main(){
     if(!current_stmt->nameAnalysis(symTab)){ // perform nameAnalysis on latest addition. Quit if failure.
       return 1;
     } else {
-      if (current_stmt->isFnDecl()){
-        // deal with functions differently.
-        // maintain pointer to function. 
+      if (current_stmt->isCallStmt()){
+        current_stmt->typeAnalysis(typeAnalysis);
+        evaluateCallStmt(current_stmt); // deal with callStmts differently.
+      } else if (current_stmt->isFnDecl()) {
       } else {
         current_stmt->typeAnalysis(typeAnalysis); // perform typeAnalysis on latest addition.
-        // current_stmt->eval(symTab);
       }
-      // TypeAnalysis will handle:
-      // 1) setting values (a = 2; set a's symbol value to 2)
-      // 2) printing (TOCONSOLE b; just print b's value)
-      // 3) arithmetic stuff ( &&, +, -)
     }
   }
   symTab->leaveScope();
   return 0;
 }
 
-bool dealWithInput(string input){
-  // Here we need to do a few things:
-  
-  // * parse the input. 
-  // * add input ONTO existing ast's globals. (may change depending on if assignment, etc)
-  // * do nameAnalysis on that latest input to AST (ast.getGlobals().last)
-  // * do typeAnalysis (maybe) on that input (ast.getGlobals().last)
-  // * perform eval if necessary on that last bit of input (ast.getGlobals().last)
-
-  // 1. Parse the input into Nodes?
-  // 2. Update the AST (add to it)
-  // 3. Do (partial) NameAnalysis on the existing AST
-  // 4. Do TypeAnalysis (if necessary: types, IDs, math, boolean operations)
-  // 5. Perform `eval` which will handle:
-  //    * Add values to Nodes to necessary (do lookup on SymbolTable)
-  //    * Perform TOCONSOLE, Plus stuff
-  return true;
+void evaluateCallStmt(StmtNode * callStmt){
+  CallExpNode * callExp = callStmt->getCallExp();
+  if(callExp){
+    SemSymbol * fnSym = symTab->find(callExp->getID()->getName());
+    if(fnSym){
+      std::list<StmtNode *>::iterator it;
+      it = ast->getGlobals()->begin();
+      bool not_found = true;
+      while(not_found && (it != ast->getGlobals()->end())){
+        if ((*it)->isFnDecl() && (*it)->callFnName(callExp->getID()->getName())){
+          not_found = false;
+          (*it)->typeAnalysis(typeAnalysis);
+        }
+        ++it;
+      }
+    }
+  }
 }
 
 static holeyc::ProgramNode * syntacticAnalysis(std::ifstream *input){

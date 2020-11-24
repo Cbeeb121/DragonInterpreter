@@ -466,7 +466,8 @@ void BinaryExpNode::binaryEqTyping(TypeAnalysis * typing){
 
 	if (lhsType == rhsType){
 		typing->nodeType(this, BasicType::BOOL());
-		return;
+    this->setExpTypes(lhsType);
+    return;
 	}
 
 	const PtrType * lhsPtr = lhsType->asPtr();
@@ -678,7 +679,7 @@ void IfStmtNode::typeAnalysis(TypeAnalysis * typing){
 			ErrorType::produce());
 	}
 
-  if(myCond->getBoolValue() && (*myCond->getBoolValue())){
+  if(myCond->getBoolValue()){
     for (auto stmt : *myBody){
       stmt->typeAnalysis(typing);
     }
